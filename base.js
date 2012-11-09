@@ -67,9 +67,14 @@ Base.prototype = {
                 var method = value.valueOf();
                 // override
                 value = function() {
+                    var returnValue;
                     var previous = this.base || Base.prototype.base;
                     this.base = ancestor;
-                    var returnValue = method.apply(this, arguments);
+                    if (arguments.length === 0) {
+                        returnValue = method.call(this);
+                    } else {
+                        returnValue = method.apply(this, arguments);
+                    }
                     this.base = previous;
                     return returnValue;
                 };
