@@ -1,7 +1,9 @@
-/*
-    Base.js, version 1.1a
-    Copyright 2006-2010, Dean Edwards
-    License: http://www.opensource.org/licenses/mit-license.php
+/**
+*   Base.js, version 1.1a
+*   Copyright 2006-2010, Dean Edwards
+*   License: http://www.opensource.org/licenses/mit-license.php
+*
+*   Modified by the Nerdery for improved performance and various bugfixes
 */
 
 var Base = function() {
@@ -15,9 +17,9 @@ Base.extend = function(_instance, _static) { // subclass
     Base._prototyping = true;
     var proto = new this;
     extend.call(proto, _instance);
-  proto.base = function() {
+    proto.base = function() {
     // call this method from any other method to invoke that method's ancestor
-  };
+    };
     delete Base._prototyping;
     
     // create the wrapper for the constructor function
@@ -30,11 +32,11 @@ Base.extend = function(_instance, _static) { // subclass
                 constructor.apply(this, arguments);
                 delete this._constructing;
             } else if (arguments[0] != null) { // casting
+                
                 return (arguments[0].extend || extend).call(arguments[0], proto);
             }
         }
     };
-    
     // build the class interface
     klass.ancestor = this;
     klass.extend = this.extend;
@@ -46,6 +48,7 @@ Base.extend = function(_instance, _static) { // subclass
         //return (type == "object") ? klass : constructor; //-dean
         return (type == "object") ? klass : constructor.valueOf();
     };
+    extend.call(_static || {}, this);
     extend.call(klass, _static);
     // class initialisation
     if (typeof klass.init == "function") klass.init();
@@ -76,7 +79,7 @@ Base.prototype = {
                 };
                 value.toString = Base.toString;
             }
-            this[source] = value;
+             this[source] = value;
         } else if (source) { // extending with an object literal
             var extend = Base.prototype.extend;
             // if this object has a customised extend method then use it
@@ -91,7 +94,6 @@ Base.prototype = {
             while (key = hidden[i++]) {
                 if (source[key] != proto[key]) {
                     extend.call(this, key, source[key]);
-
                 }
             }
             // copy each of the source object's properties to this object
