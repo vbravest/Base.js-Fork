@@ -20,7 +20,7 @@ Base.extend = function(_instance, _static) { // subclass
     proto.base = function() {
     // call this method from any other method to invoke that method's ancestor
     };
-    delete Base._prototyping;
+    Base._prototyping = false;
     
     // create the wrapper for the constructor function
     //var constructor = proto.constructor.valueOf(); //-dean
@@ -30,7 +30,7 @@ Base.extend = function(_instance, _static) { // subclass
             if (this._constructing || this.constructor == klass) { // instantiation
                 this._constructing = true;
                 constructor.apply(this, arguments);
-                delete this._constructing;
+                this._constructing = false;
             } else if (arguments[0] != null) { // casting
                 
                 return (arguments[0].extend || extend).call(arguments[0], proto);
