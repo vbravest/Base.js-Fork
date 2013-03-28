@@ -76,6 +76,14 @@ var Base = (function() {
     /**
      * Base class
      *
+     * A library to create a more traditional OOP interface for developers to work with
+     *
+     * @example
+     * Can create new classes in two ways:
+     *
+     * new Base(instance, static);
+     * Base.extend(instance, static); // recommended
+     *
      * @name Base
      * @constructor
      */
@@ -215,8 +223,15 @@ var Base = (function() {
     // initialise
     Base = Base.extend({
 
-        constructor: function() {
-            this.extend.apply(this, arguments);
+        /**
+         * Constructor when `new Base()` is called. It is preferred to use Base.extend over `new Base()`
+         *
+         * @param {object} [_instance] Instance members/methods
+         * @param {object} [_static] Static members/methods
+         * @returns {Base}
+         */
+        constructor: function(_instance, _static) {
+            return this.extend(_instance, _static);
         }
 
     }, {
