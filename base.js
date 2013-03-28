@@ -63,7 +63,7 @@ var Base = (function() {
      * @type {function}
      * @private
      */
-    var _noop = function() {};
+    var _blankFunction = function() {};
 
     /**
      * Prototype default values. When extending methods, if both sources have these values, do not copy them.
@@ -71,7 +71,7 @@ var Base = (function() {
      * @type {object}
      * @private
      */
-    var _prototypeDefaults = { toSource: null, base: _noop };
+    var _prototypeDefaults = { toSource: null, base: _blankFunction };
 
     /**
      * Base class
@@ -128,7 +128,7 @@ var Base = (function() {
         };
         extend.call(klass, _static);
 
-        // class initialisation
+        // if static init method exists, call it
         if (typeof klass.init === TYPE_FUNCTION) {
             klass.init();
         }
@@ -216,7 +216,7 @@ var Base = (function() {
     Base = Base.extend({
 
         constructor: function() {
-            this.extend(arguments[0]);
+            this.extend.apply(this, arguments);
         }
 
     }, {
