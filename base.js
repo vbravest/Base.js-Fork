@@ -15,15 +15,16 @@ Base.extend = function(_instance, _static) { // subclass
 
     // build the prototype
     Base._prototyping = true;
+
     var proto = new this;
     extend.call(proto, _instance);
-    proto.base = function() {
+
     // call this method from any other method to invoke that method's ancestor
-    };
+    proto.base = function() {};
+
     Base._prototyping = false;
     
     // create the wrapper for the constructor function
-    //var constructor = proto.constructor.valueOf(); //-dean
     var constructor = proto.constructor;
     var klass = proto.constructor = function() {
         if (!Base._prototyping) {
@@ -42,18 +43,20 @@ Base.extend = function(_instance, _static) { // subclass
     klass.ancestor = this;
     klass.prototype = proto;
     klass.valueOf = function(type) {
-        //return (type == "object") ? klass : constructor; //-dean
         return (type == "object") ? klass : constructor.valueOf();
     };
     extend.call(klass, _static);
+
     // class initialisation
     if (typeof klass.init == "function") klass.init();
+
     return klass;
 };
 
 Base.prototype = {	
     extend: function(source, value) {
-        if (arguments.length > 1) { // extending with a name/value pair
+        // extending with a name/value pair
+        if (arguments.length > 1) {
             var ancestor = this[source];
             if (ancestor && (typeof value == "function") && // overriding a method?
                 // the valueOf() comparison is to avoid circular references
@@ -81,7 +84,9 @@ Base.prototype = {
                 value.toString = Base.toString;
             }
              this[source] = value;
-        } else if (source) { // extending with an object literal
+
+        // extending with an object literal
+        } else if (source) {
             var extend = Base.prototype.extend;
             // if this object has a customised extend method then use it
             if (!Base._prototyping && typeof this != "function") {
@@ -113,6 +118,7 @@ Base = Base.extend({
     }
 }, {
     ancestor: Object,
+
     version: "1.1",
     
     forEach: function(object, block, context) {
@@ -121,6 +127,8 @@ Base = Base.extend({
                 block.call(context, object[key], key, object);
             }
         }
+
+        return this;
     },
 
     cast: function() {
@@ -153,10 +161,11 @@ Base = Base.extend({
         for (var i = 0; i < arguments.length; i++) {
             this.cast.call(arguments[i], this);
         }
+
         return this;
     },
     
     toString: function() {
-        return String(this.valueOf());
+        return this.valueOf() + '';
     }
 });
