@@ -12,7 +12,7 @@ var Base = function() {
 
 Base.extend = function(_instance, _static) { // subclass
     var extend = Base.prototype.extend;
-    
+
     // build the prototype
     Base._prototyping = true;
     var proto = new this;
@@ -31,9 +31,10 @@ Base.extend = function(_instance, _static) { // subclass
                 this._constructing = true;
                 constructor.apply(this, arguments);
                 this._constructing = false;
-            } else if (arguments[0] != null) { // casting
-                
-                return (arguments[0].extend || extend).call(arguments[0], proto);
+            } else if (arguments.length) { // casting
+                for (var i = 0; i < arguments.length; i++) {
+                    Base.cast.call(klass, arguments[i]);
+                }
             }
         }
     };
@@ -87,7 +88,7 @@ Base.prototype = {
             if (!Base._prototyping && typeof this != "function") {
                 extend = this.extend || extend;
             }
-            var proto = {toSource: null};
+            var proto = {toSource: null, base: Base.prototype.base};
             // do the "toString" and other methods manually
             var hidden = ["constructor", "toString", "valueOf"];
             // if we are prototyping then include the constructor
@@ -122,16 +123,28 @@ Base = Base.extend({
             }
         }
     },
+
+    cast: function(caster) {
+        var extend = caster.extend || Base.prototype.extend;
+
+        // cast prototype and static methods
+        if (typeof caster == "function") {
+            extend = caster.prototype.extend || Base.prototype.extend;
+            extend.call(caster.prototype, this.prototype);
+            extend.call(caster, this);
+            caster.ancestor = this;
+
+        // cast only prototype methods
+        } else {
+            extend.call(caster, this.prototype);
+        }
+
+        return this;
+    },
         
     implement: function() {
         for (var i = 0; i < arguments.length; i++) {
-            if (typeof arguments[i] == "function") {
-                // if it's a function, call it
-                arguments[i](this.prototype);
-            } else {
-                // add the interface using the extend method
-                this.prototype.extend(arguments[i]);
-            }
+            this.cast.call(arguments[i], this);
         }
         return this;
     },
