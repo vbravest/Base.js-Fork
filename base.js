@@ -42,6 +42,22 @@ var Base = (function() {
     var _hiddenMethods = ['constructor', 'toString', 'valueOf'];
 
     /**
+     * Lenth of hidden methods array
+     *
+     * @type {number}
+     * @private
+     */
+    var _hiddenMethodsLength = _hiddenMethods.length;
+
+    /**
+     * Regex to find any calls to a parent method
+     *
+     * @type {RegExp}
+     * @private
+     */
+    var _superMethodRegex = /\bbase\b/;
+
+    /**
      * Blank function
      *
      * @type {function}
@@ -132,16 +148,21 @@ var Base = (function() {
         // extending with a name/value pair
         if (arguments.length > 1) {
             var ancestor = this[source];
-            if (ancestor && (typeof value === TYPE_FUNCTION) && // overriding a method?
+            if (
+                ancestor &&
+                // overriding a method?
+                (typeof value === TYPE_FUNCTION) &&
                 // the valueOf() comparison is to avoid circular references
                 (!ancestor.valueOf || ancestor.valueOf() !== value.valueOf()) &&
-                /\bbase\b/.test(value)) {
+                _superMethodRegex.test(value)
+            ) {
                 // get the underlying method
                 var method = value.valueOf();
+
                 // override
                 value = function() {
                     var returnValue;
-                    var previous = this.base || Base.prototype.base;
+                    var previous = this.base || _prototypeDefaults.base;
                     this.base = ancestor;
                     if (arguments.length === 0) {
                         returnValue = method.call(this);
@@ -151,6 +172,7 @@ var Base = (function() {
                     this.base = previous;
                     return returnValue;
                 };
+
                 // point to the underlying method
                 value.valueOf = function(type) {
                     return (type === TYPE_OBJECT) ? value : method;
@@ -162,20 +184,23 @@ var Base = (function() {
         // extending with an object literal
         } else if (source) {
             var extend = Base.prototype.extend;
-            var key;
+
             // if this object has a customised extend method then use it
             if (!_prototyping && typeof this !== TYPE_FUNCTION) {
                 extend = this.extend || extend;
             }
 
-            // do the "toString" and other methods manually
+            // do hidden methods separately
             // if we are prototyping then include the constructor
             var i = _prototyping ? 0 : 1;
-            while (key = _hiddenMethods[i++]) {
+            var key;
+            for (; i < _hiddenMethodsLength; i++) {
+                key = _hiddenMethods[i];
                 if (source[key] !== _prototypeDefaults[key]) {
                     extend.call(this, key, source[key]);
                 }
             }
+
             // copy each of the source object's properties to this object
             for (key in source) {
                 if (source.hasOwnProperty(key) && !_prototypeDefaults[key]) {
