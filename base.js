@@ -79,7 +79,7 @@ var Base = (function() {
         // build the prototype
         _prototyping = true;
 
-        var proto = new this;
+        var proto = new this();
         extend.call(proto, _instance);
 
         // call this method from any other method to invoke that method's ancestor
@@ -91,11 +91,14 @@ var Base = (function() {
         var constructor = proto.constructor;
         var klass = proto.constructor = function() {
             if (!_prototyping) {
-                if (this && (this._constructing || this.constructor === klass)) { // instantiation
+                // instantiation
+                if (this && (this._constructing || this.constructor === klass)) {
                     this._constructing = true;
                     constructor.apply(this, arguments);
                     this._constructing = false;
-                } else if (arguments.length) { // casting
+
+                // casting
+                } else if (arguments.length) {
                     Base.cast.apply(klass, arguments);
                 }
             }
@@ -110,7 +113,9 @@ var Base = (function() {
         extend.call(klass, _static);
 
         // class initialisation
-        if (typeof klass.init === TYPE_FUNCTION) klass.init();
+        if (typeof klass.init === TYPE_FUNCTION) {
+            klass.init();
+        }
 
         return klass;
     };
@@ -129,7 +134,7 @@ var Base = (function() {
             var ancestor = this[source];
             if (ancestor && (typeof value === TYPE_FUNCTION) && // overriding a method?
                 // the valueOf() comparison is to avoid circular references
-                (!ancestor.valueOf || ancestor.valueOf() != value.valueOf()) &&
+                (!ancestor.valueOf || ancestor.valueOf() !== value.valueOf()) &&
                 /\bbase\b/.test(value)) {
                 // get the underlying method
                 var method = value.valueOf();
@@ -152,11 +157,12 @@ var Base = (function() {
                 };
                 value.toString = Base.toString;
             }
-             this[source] = value;
+            this[source] = value;
 
         // extending with an object literal
         } else if (source) {
             var extend = Base.prototype.extend;
+            var key;
             // if this object has a customised extend method then use it
             if (!_prototyping && typeof this !== TYPE_FUNCTION) {
                 extend = this.extend || extend;
@@ -171,8 +177,10 @@ var Base = (function() {
                 }
             }
             // copy each of the source object's properties to this object
-            for (var key in source) {
-                if (!_prototypeDefaults[key]) extend.call(this, key, source[key]);
+            for (key in source) {
+                if (source.hasOwnProperty(key) && !_prototypeDefaults[key]) {
+                    extend.call(this, key, source[key]);
+                }
             }
         }
 
@@ -283,7 +291,7 @@ var Base = (function() {
          *
          * @method
          * @name Base.toString
-         * @returns {Base}
+         * @returns {string}
          */
         toString: function() {
             return this.valueOf() + '';
