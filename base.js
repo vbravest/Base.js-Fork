@@ -38,17 +38,13 @@ Base.extend = function(_instance, _static) { // subclass
         }
     };
     // build the class interface
+    extend.call(klass, this);
     klass.ancestor = this;
-    klass.extend = this.extend;
-    klass.forEach = this.forEach;
-    klass.implement = this.implement;
     klass.prototype = proto;
-    klass.toString = this.toString;
     klass.valueOf = function(type) {
         //return (type == "object") ? klass : constructor; //-dean
         return (type == "object") ? klass : constructor.valueOf();
     };
-    extend.call(_static || {}, this);
     extend.call(klass, _static);
     // class initialisation
     if (typeof klass.init == "function") klass.init();
