@@ -32,14 +32,13 @@ Base.extend = function(_instance, _static) { // subclass
                 constructor.apply(this, arguments);
                 this._constructing = false;
             } else if (arguments.length) { // casting
-                for (var i = 0; i < arguments.length; i++) {
-                    Base.cast.call(klass, arguments[i]);
-                }
+                Base.cast.apply(klass, arguments);
             }
         }
     };
     // build the class interface
     extend.call(klass, this);
+    klass.base = function() {};
     klass.ancestor = this;
     klass.prototype = proto;
     klass.valueOf = function(type) {
@@ -124,19 +123,27 @@ Base = Base.extend({
         }
     },
 
-    cast: function(caster) {
-        var extend = caster.extend || Base.prototype.extend;
+    cast: function() {
+        var i = 0;
+        var length = arguments.length;
+        var extend;
+        var caster;
 
-        // cast prototype and static methods
-        if (typeof caster == "function") {
-            extend = caster.prototype.extend || Base.prototype.extend;
-            extend.call(caster.prototype, this.prototype);
-            extend.call(caster, this);
-            caster.ancestor = this;
+        for (; i < length; i++) {
+            caster = arguments[i];
+            extend = caster.extend || Base.prototype.extend;
 
-        // cast only prototype methods
-        } else {
-            extend.call(caster, this.prototype);
+            // cast prototype and static methods
+            if (typeof caster == "function") {
+                extend = caster.prototype.extend || Base.prototype.extend;
+                extend.call(caster.prototype, this.prototype);
+                extend.call(caster, this);
+                caster.ancestor = this;
+
+            // cast only prototype methods
+            } else {
+                extend.call(caster, this.prototype);
+            }
         }
 
         return this;
