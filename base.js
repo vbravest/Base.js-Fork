@@ -81,22 +81,10 @@ var Base = (function() {
                         var previous = this.base || Base.prototype.base;
                         this.base = ancestor;
 
-                        switch (arguments.length) {
-                            case 0:
-                                returnValue = method.call(this);
-                                break;
-                            case 1:
-                                returnValue = method.call(this, arguments[0]);
-                                break;
-                            case 2:
-                                returnValue = method.call(this, arguments[0], arguments[1]);
-                                break;
-                            case 3:
-                                returnValue = method.call(this, arguments[0], arguments[1], arguments[2]);
-                                break;
-                            default:
-                                returnValue = method.apply(this, arguments);
-                                break;
+                        if (!arguments.length) {
+                            returnValue = method.call(this);
+                        } else {
+                            returnValue = method.apply(this, arguments);
                         }
 
                         this.base = previous;
