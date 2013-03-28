@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- META DATA -->
+    <meta charset="utf-8" />
+    <title>Base.js Unit Tests</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/mocha.css" />
+</head>
+<body>
+    <div id="mocha"></div>
+    <script src="../base.js"></script>
+    <script src="js/lib/mocha.js"></script>
+    <script src="js/lib/chai.js"></script>
+    <script src="js/lib/sinon.js"></script>
+    <script>
+        chai.should();
+        window.expect = chai.expect;
+        mocha.setup({
+            ui: 'bdd',
+            timeout: 20000,
+            globals: ['Base','css','cssFile','cssRule']
+        });
+    </script>
+    <script src="js/tests/base.js"></script>
+    <script>
+        mocha.run();
+    </script>
+</body>
+</html>
