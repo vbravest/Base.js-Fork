@@ -9,6 +9,11 @@
 var Base = (function() {
     'use strict';
 
+    var TYPE_FUNCTION = 'function';
+    var TYPE_OBJECT = 'object';
+
+    var _hiddenProperties = ['constructor', 'toString', 'valueOf'];
+
     var Base = function() {
         // dummy
     };
@@ -51,12 +56,12 @@ var Base = (function() {
         klass.toString = this.toString;
         klass.valueOf = function(type) {
             //return (type == "object") ? klass : constructor; //-dean
-            return (type == "object") ? klass : constructor.valueOf();
+            return (type === TYPE_OBJECT) ? klass : constructor.valueOf();
         };
         extend.call(_static || {}, this);
         extend.call(klass, _static);
         // class initialisation
-        if (typeof klass.init == "function") klass.init();
+        if (typeof klass.init === TYPE_FUNCTION) klass.init();
         return klass;
     };
 
@@ -64,7 +69,7 @@ var Base = (function() {
         extend: function(source, value) {
             if (arguments.length > 1) { // extending with a name/value pair
                 var ancestor = this[source];
-                if (ancestor && (typeof value == "function") && // overriding a method?
+                if (ancestor && (typeof value === TYPE_FUNCTION) && // overriding a method?
                     // the valueOf() comparison is to avoid circular references
                     (!ancestor.valueOf || ancestor.valueOf() != value.valueOf()) &&
                     /\bbase\b/.test(value)) {
@@ -75,17 +80,31 @@ var Base = (function() {
                         var returnValue;
                         var previous = this.base || Base.prototype.base;
                         this.base = ancestor;
-                        if (arguments.length === 0) {
-                            returnValue = method.call(this);
-                        } else {
-                            returnValue = method.apply(this, arguments);
+
+                        switch (arguments.length) {
+                            case 0:
+                                returnValue = method.call(this);
+                                break;
+                            case 1:
+                                returnValue = method.call(this, arguments[0]);
+                                break;
+                            case 2:
+                                returnValue = method.call(this, arguments[0], arguments[1]);
+                                break;
+                            case 3:
+                                returnValue = method.call(this, arguments[0], arguments[1], arguments[2]);
+                                break;
+                            default:
+                                returnValue = method.apply(this, arguments);
+                                break;
                         }
+
                         this.base = previous;
                         return returnValue;
                     };
                     // point to the underlying method
                     value.valueOf = function(type) {
-                        return (type == "object") ? value : method;
+                        return (type === TYPE_OBJECT) ? value : method;
                     };
                     value.toString = Base.toString;
                 }
@@ -93,15 +112,14 @@ var Base = (function() {
             } else if (source) { // extending with an object literal
                 var extend = Base.prototype.extend;
                 // if this object has a customised extend method then use it
-                if (!_prototyping && typeof this != "function") {
+                if (!_prototyping && typeof this !== TYPE_FUNCTION) {
                     extend = this.extend || extend;
                 }
-                var proto = {toSource: null};
+                var proto = { toSource: null };
                 // do the "toString" and other methods manually
-                var hidden = ["constructor", "toString", "valueOf"];
                 // if we are prototyping then include the constructor
                 var i = _prototyping ? 0 : 1;
-                while (key = hidden[i++]) {
+                while (key = _hiddenProperties[i++]) {
                     if (source[key] != proto[key]) {
                         extend.call(this, key, source[key]);
                     }
@@ -122,7 +140,7 @@ var Base = (function() {
         }
     }, {
         ancestor: Object,
-        version: "1.1",
+        version: '1.1',
 
         forEach: function(object, block, context) {
             for (var key in object) {
@@ -134,7 +152,7 @@ var Base = (function() {
 
         implement: function() {
             for (var i = 0; i < arguments.length; i++) {
-                if (typeof arguments[i] == "function") {
+                if (typeof arguments[i] === TYPE_FUNCTION) {
                     // if it's a function, call it
                     arguments[i](this.prototype);
                 } else {
