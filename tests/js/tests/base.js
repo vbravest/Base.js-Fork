@@ -1,4 +1,4 @@
-/*global describe:true, beforeEach:true, sinon:true, it:true, expect:true, afterEach:true */
+/*global describe:true, beforeEach:true, sinon:true, it:true, expect:true, afterEach:true, Base:true */
 (function() {
     'use strict';
 
@@ -64,6 +64,56 @@
 
             expect(order[0]).to.equal('B');
             expect(order[1]).to.equal('A');
+        });
+
+        it('will call parent constructor when `this.base()` is in a constructor method', function() {
+            var called = 0;
+
+            var A = Base.extend({
+                constructor: function() {
+                    called++;
+                }
+            });
+
+            var B = A.extend({
+                constructor: function() {
+                    called++;
+                    this.base();
+                }
+            });
+
+            new B();
+
+            expect(called).to.equal(2);
+        });
+
+        it('will call parent 3 levels deep', function() {
+            var called = 0;
+
+            var A = Base.extend({
+                method: function() {
+                    called++;
+                }
+            });
+
+            var B = A.extend({
+                method: function() {
+                    called++;
+                    this.base();
+                }
+            });
+
+            var C = B.extend({
+                method: function() {
+                    called++;
+                    this.base();
+                }
+            });
+
+            var klass = new C();
+            klass.method();
+
+            expect(called).to.equal(3);
         });
 
     });

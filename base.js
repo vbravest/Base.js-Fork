@@ -6,7 +6,7 @@
 *   Modified by the Nerdery for improved performance and various bugfixes
 */
 
-var Base = (function() {
+var Base = (function(undefined) {
     'use strict';
 
     /**
@@ -24,6 +24,14 @@ var Base = (function() {
      * @constant
      */
     var TYPE_OBJECT = 'object';
+
+    /**
+     * String type
+     *
+     * @type {string}
+     * @constant
+     */
+    var TYPE_STRING = 'string';
 
     /**
      * Flag to determine if we are currently create a clean prototype of a class
@@ -154,7 +162,7 @@ var Base = (function() {
      */
     Base.prototype.extend = function(source, value) {
         // extending with a name/value pair
-        if (arguments.length > 1) {
+        if (typeof source === TYPE_STRING && arguments.length > 1) {
             var ancestor = this[source];
             if (
                 ancestor &&
@@ -211,7 +219,7 @@ var Base = (function() {
 
             // copy each of the source object's properties to this object
             for (key in source) {
-                if (source.hasOwnProperty(key) && !_prototypeDefaults[key]) {
+                if (!_prototypeDefaults[key]) {
                     extend.call(this, key, source[key]);
                 }
             }
@@ -237,7 +245,7 @@ var Base = (function() {
     }, {
 
         /**
-         * Default base method
+         * Default static base method
          *
          * @method
          */
@@ -260,9 +268,12 @@ var Base = (function() {
         version: '1.1',
 
         /**
-         * Iterate over all prototype properties
+         * Iterate over all prototype properties with a function.
+         * Only keys found in object will be iterrated over,
+         * and only if the property does not exists in the current classes prototype.
          *
          * @method
+         * @name Base.forEach
          * @param {object} object
          * @param {function} iterator
          * @param {*} context
@@ -280,6 +291,8 @@ var Base = (function() {
 
         /**
          * Extend current class into another object or class
+         * If an object with no prototype is passed, only prototype methods will be cast.
+         * If an a class (with constructor) is passed, both static and prototype methods will be cast.
          *
          * @method
          * @name Base.cast
@@ -312,7 +325,7 @@ var Base = (function() {
         },
 
         /**
-         * Extend class into current class
+         * Implement a class into the current class
          *
          * @method
          * @name Base.implement
