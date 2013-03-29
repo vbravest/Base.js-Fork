@@ -86,12 +86,6 @@ var Base = (function(undefined) {
      *
      * A library to create a more traditional OOP interface for developers to work with
      *
-     * @example
-     * Can create new classes in two ways:
-     *
-     * new Base(instance, static);
-     * Base.extend(instance, static); // recommended
-     *
      * @name Base
      * @constructor
      */
