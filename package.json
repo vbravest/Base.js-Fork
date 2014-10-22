@@ -1,0 +1,14 @@
+{
+    "name": "Base.js-Fork",
+    "version": "0.9.0",
+    "description": "Fork of Base.js with improved performance and various bug fixes",
+    "private": true,
+    "dependencies": {},
+    "devDependencies": {
+        "grunt": "0.4.1",
+        "load-grunt-tasks": "0.2.0",
+        "grunt-contrib-uglify": "0.3.2",
+        "grunt-contrib-watch": "0.5.3",
+        "grunt-umd": "2.0.1"
+    }
+}
